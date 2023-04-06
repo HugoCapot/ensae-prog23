@@ -460,6 +460,7 @@ def function_profit(fichier_trucks,fichier_routes,fichier_network):
     parents=A.creer_parents(racine)
     lt=tri_des_camions(liste_from_file("input/"+fichier_trucks)) #On importe la liste des camions triée. Chaque élément est de la forme [puissance, coût]
 
+    
     b= 25*(10**9) #Contrainte budgétaire
     depenses=0 #Compteur de nos dépenses
     umax= 0 #Compteur de notre utilité
@@ -467,19 +468,24 @@ def function_profit(fichier_trucks,fichier_routes,fichier_network):
     resultat=[]
     for i in range (0,len(lr)): #On parcourt toutes les routes dans l'ordre
         l=len(lr)
-        pmin=A.min_power_arbre(lr[l-i-1][0],lr[l-i-1][1],racine, parents) #On récupère la puissance minimale sur le trajet considéré
-        #On cherche le camion le moins cher qui permet d'effectuer le trajet
-        for j in range (0,len(lt)):
-            if lt[j][0]>= pmin:
-                puiss=lt[j][0]
-                c= lt[j][1]
-                depenses=depenses+c
-                break
-        if depenses>b:
+        if depenses<= b:
+            pmin=A.min_power_arbre(lr[l-i-1][0],lr[l-i-1][1],racine, parents) #On récupère la puissance minimale sur le trajet considéré
+            #On cherche le camion le moins cher qui permet d'effectuer le trajet
+            for j in range (0,len(lt)):
+                if lt[j][0]>= pmin:
+                    puiss=lt[j][0]
+                    c= lt[j][1]
+                    depenses=depenses+c
+                    if depenses<=b: #pour s'assurer qu'une fois rajouter on ne depassera pas cb
+                            resultat.append([(puiss,c),(lr[l-i-1][0],lr[l-i-1][1])])
+                            umax+=lr[l-i-1][2]   #On prend l'indice "l-i-1" car on veut sommer les utilités en partant des plus grandes utilités ("lr" est triée par ordre croissant d'utilité) 
+                    break
+        else:
             break
-        resultat.append([(puiss,c),(lr[l-i-1][0],lr[l-i-1][1])])
-        umax+=lr[l-i-1][2]   #On prend l'indice "l-i-1" car on veut sommer les utilités en partant des plus grandes utilités ("lr" est triée par ordre croissant d'utilité) 
-    return (umax,resultat)
+    return (umax,resultat)    
+    
+    
+        
 
 def liste_from_file(filename):
     f = open("/home/onyxia/work/ensae-prog23/"+filename, "r") 
