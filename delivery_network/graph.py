@@ -401,6 +401,54 @@ def tri_des_camions(lignes):
     return list(reversed(L_reverse))
 #Complexité en O(n)
 
+
+#Méthode 1:methode naive, exacte mais non optimal
+#Pour la tester on a créé des fichiers dans input .a.in et .b.in
+def function_profit_exacte(fichier_trucks,fichier_routes,fichier_network): 
+       
+    lr=liste_from_file("input/"+fichier_routes)
+    g= graph_from_file("input/"+fichier_network)        
+    lt=liste_from_file("input/"+fichier_trucks) 
+
+    '''on veut tester toutes les listes possibles qu'on peut faire a partir du fichier routes et trouver dans 
+    chacune umax pour ensuite trouver le max de tous        
+    '''
+
+    import itertools
+    permutations= list(itertools.permutations(lr)) #liste ou sera stockés toutes les permutations
+
+    umax=0
+    resultat_final=[]
+    b= 25* (10**9)
+
+    for perm in permutations: #pour chaque element de la liste permutations cad chaque ensemble d'utilite
+        u=0
+        resultat=[]
+        depenses=0 #on definit depenses a l'intérieur de for pour que pour chaque perm la variable se réinitialise a 0
+        for i in range (0,len(perm)):
+            if depenses <= b:
+                p=g.min_power(perm[i][0],perm[i][1])
+                pmin=p[1]
+                for j in range(0,len(lt)):
+                    if lt[j][0]>= pmin:
+                        puiss= lt[j][0]
+                        c=lt[j][1]
+                        depenses=depenses+c
+                        if depenses<=b: #pour s'assurer qu'une fois rajouter on ne depassera pas cb
+                            resultat.append([(puiss,c),(perm[i][0],perm[i][1])])
+                            u=u+perm[i][2] 
+                        break   
+            else:
+                break
+        if u>= umax:
+            umax=u
+            resultat_final=resultat
+    return (umax,resultat_final)
+        
+
+
+
+
 #Méthode rapide mais non optimale
 def function_profit(fichier_trucks,fichier_routes,fichier_network):
     # je veux acceder aux lignes du fichier_routes, chaque ligne i>=1 represente le trajet i=(ville1,ville2) et son utilite i 
